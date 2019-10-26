@@ -1,0 +1,1 @@
+console.error("子进程"+process.argv[2])

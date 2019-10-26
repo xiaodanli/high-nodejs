@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>聊天室</title>
+</head>
+<body>
+    <!-- /*登录界面*/ -->
+    <div class="login-wrap">
+        <div class="login-con">
+            <h3>用户登录</h3>
+            <input type="text" placeholder="请输入昵称" id="loginName">
+            <button class="login-btn">登录</button>
+        </div>
+    </div>
+    
+    <!-- /*聊天界面，一开始隐藏，用户登录成功后再显示*/ -->
+    <div class="chat-wrap hide" style="display: none">
+        <h1>多人聊天室</h1>
+        <div class="chat-con clearfix"></div>
+        <div class="bottom" style="position: fixed;bottom:0;right:0;">
+            <input type="text" id="sendtxt">
+            <button class="sendBtn">发送</button>
+        </div>
+    </div>
+    <script src="./socket.io.js"></script>
+    <script>
+        let socket = io('ws://169.254.204.130:8081');
+
+        let uname = null;
+
+        let loginBtn = document.querySelector('.login-btn'),
+            ipt = document.querySelector('#loginName'),
+            chatWrap = document.querySelector('.chat-wrap'),
+            loginWrap = document.querySelector('.login-wrap'),
+            chatCon = document.querySelector('.chat-con'),
+            sendBtn = document.querySelector('.sendBtn'),
+            sendTxt = document.querySelector('#sendtxt');
+        
+        loginBtn.addEventListener('click',() => {
+            uname = ipt.value;
+            if(uname){
+                //登录
+                socket.emit('login',{username:uname})
+            }else{
+                alert("昵称不存在")
+            }
+        })
+
+        //登录成功
+        socket.on('loginSuccess',data => {
+            loginWrap.style.display = 'none';
+            chatWrap.style.display = 'block';
+        })
+
+        //昵称重复
+        socket.on('loginFail',data => {
+            alert("昵称重复")
+        })
+
+        //监听新人加入
+        socket.on('join',data => {
+            let info = `<p>${data.username}加入群聊</p>`;
+            chatCon.innerHTML += info;
+        })
+
+        //监听人员退出
+        socket.on('leave',username => {
+            let info = `<p>${username}离开群聊</p>`;
+            chatCon.innerHTML += info;
+        })
+
+        //发送信息
+        sendBtn.addEventListener('click',() => {
+            let txt = sendTxt.value;
+            if(txt){
+                sendTxt.value = '';
+                socket.emit('sendMsg',{txt,username:uname})
+            }
+        })
+
+        //监听发送的信息
+        socket.on('msg',data => {
+            let info = `<p>${data.username}:${data.txt}</p>`;
+            chatCon.innerHTML += info;
+        })
+    </script>
+</body>
+</html>

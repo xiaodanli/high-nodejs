@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <button id="start">开始</button>
+    <span id="loading" style="display: none">等待队员</span>
+    <div id="question-wrap" style="display: none">
+        
+    </div>
+    <script>
+        let ws = new WebSocket('ws://localhost:3000');
+        let start = document.querySelector('#start');
+        let loading = document.querySelector('#loading');
+        let questionWrap = document.querySelector('#question-wrap');
+
+        //获取地址栏参数
+        let getParams = (() => {
+            let str = location.search.substr(1); //name=zs&age=19
+            let arr = str.split('&'); //[name=zs,age=19]
+            let params = {};
+            arr.forEach(item => {
+                let obj = item.split('=');  //[name,zs] [age,19]
+                params[obj[0]] = obj[1]; //{name:zs,age:19}
+            })
+            return (key) => {
+                return params[key]
+            }
+        })()
+
+        //getParams()('name')  //zs
+        console.log(getParams('name'))
+
+        let sendMsg = msg => {
+            ws.send(JSON.stringify(msg))
+        }
+
+        //点击开始
+        start.addEventListener('click',() =>{
+            start.style.display = 'none';
+            loading.style.display = 'block';
+            sendMsg({
+                action:'start',
+                name:getParams('name')
+            })
+        })
+
+        let curIndex = 0; //当前题的索引
+
+        ws.onmessage = (message) => {
+            let msg = JSON.parse(message.data);
+            switch (msg.action) {
+                case 'play':
+                    start.style.display = 'none';
+                    loading.style.display = 'none';
+                    questionWrap.style.display = 'block';
+                    //渲染题
+                    renderQuestion();
+                    break;
+                case 'next':
+                    curIndex += 1;
+                    if(curIndex >= questions.length){
+                        //最后一题  over
+                        sendMsg({
+                            action:'over'
+                        })
+                    }else{
+                        //下一题
+                        renderQuestion();
+                    }
+                    break;
+                case 'result':
+                    alert(msg.msg)
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        const questions = [
+            {
+                title:"闯红灯对吗？",
+                options:['对','错'],
+                right:'错',
+                isAnswer:false
+            },
+            {
+                title:'1+1=2？',
+                options:['对','错'],
+                right:'对',
+                isAnswer:false
+            }
+        ]
+
+        
+
+        function renderQuestion(){
+            let question = questions[curIndex];
+
+            let html = `
+                <h3>${question.title}</h3>
+                <ul>
+                    <li>
+                        <input type="radio" name="ques" value="${question.options[0]}"/>${question.options[0]}
+                    </li>
+                    <li>
+                        <input type="radio" name="ques" value="${question.options[1]}"/>${question.options[1]}
+                    </li>
+                </ul>
+            `;
+
+            questionWrap.innerHTML = html;
+
+            let ipts = document.querySelectorAll('input');
+
+            ipts.forEach(item =>{
+                item.addEventListener('change',function(){
+                    let val = this.value;
+                    if(val === question.right){
+                        //答对
+                        sendMsg({
+                            action:'answer',
+                            val:1
+                        })    
+                    }else{
+                        //答错
+                        sendMsg({
+                            action:'answer',
+                            val:0
+                        }) 
+                    }
+                })
+            })
+            
+        }
+
+        
+    </script>
+</body>
+</html>

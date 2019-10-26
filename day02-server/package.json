@@ -1,0 +1,21 @@
+{
+  "name": "day02-server",
+  "version": "2.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "own-server": "./bin/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^3.0.2",
+    "ejs": "^2.7.1",
+    "express": "^4.17.1",
+    "inquirer": "^7.0.0"
+  }
+}

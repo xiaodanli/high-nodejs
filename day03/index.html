@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <input type="text" id="ipt">
+        <h1>二进制</h1>
+        <div class="two"></div>
+        <h2>八进制</h2>
+        <div class="eight"></div>
+        <h2>十进制</h2>
+        <div class="ten"></div>
+        <h2>十六进制</h2>
+        <div class="sixteen"></div>
+    </div>
+
+    <!-- <script>
+        let ipt = document.querySelector('#ipt');  //wo
+
+        let two = document.querySelector('.two')
+
+        ipt.oninput = (e) => {
+            let arr = e.target.value.split('');
+            let asciiArr = arr.map(item => {
+                return item.charCodeAt()
+            })
+
+            two.innerHTML = asciiArr.map(v => transfrom(2,v)).join('&')
+        }
+
+        function transfrom(num,asciiItem){
+            let canArr = [2,8,10,16];
+            if(!canArr.includes(num)){
+                console.log("不存在此进制转换")
+                return 
+            }
+            return asciiItem.toString(num)
+        }
+    </script> -->
+
+    <script></script>
+</body>
+</html>
